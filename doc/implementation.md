@@ -276,17 +276,17 @@ Lazy Loading、Virtualization、React最適化を実装。
 
 ### タスク
 
-#### 【 】8-1. Lazy Loading実装（1時間）
+#### 【x】8-1. Lazy Loading実装（1時間）
 - **Red**: Lazy Loading動作テスト
 - **Green**: IntersectionObserver実装
 - **Refactor**: ビューポート判定最適化
 
-#### 【 】8-2. React最適化（1時間）
+#### 【x】8-2. React最適化（1時間）
 - **Red**: 再レンダリング回数テスト
 - **Green**: React.memo, useMemo, useCallback適用
 - **Refactor**: パフォーマンス計測
 
-#### 【 】8-3. IndexedDB最適化（1時間）
+#### 【x】8-3. IndexedDB最適化（1時間）
 - **Red**: バッチ処理テスト
 - **Green**: 複数画像一括追加実装
 - **Refactor**: インデックス最適化

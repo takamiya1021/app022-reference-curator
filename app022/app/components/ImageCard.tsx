@@ -1,4 +1,9 @@
+"use client";
+
+import { memo, useEffect, useRef, useState } from "react";
 import type { ImageData } from "@/types";
+
+const BLANK_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 type ImageCardProps = {
   image: ImageData;
@@ -6,26 +11,60 @@ type ImageCardProps = {
   onSelect?: (image: ImageData) => void;
 };
 
-export default function ImageCard({
-  image,
-  onDelete,
-  onSelect,
-}: ImageCardProps) {
-  const handleDelete = () => onDelete(image.id);
+const ImageCardComponent = ({ image, onDelete, onSelect }: ImageCardProps) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
+  useEffect(() => {
+    setIsLoaded(false);
+  }, [image.id, image.thumbnail]);
+
+  useEffect(() => {
+    const target = triggerRef.current;
+    if (!target) return undefined;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsLoaded(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const isIntersecting = entries.some((entry) => entry.isIntersecting);
+      if (isIntersecting) {
+        setIsLoaded(true);
+        observer.disconnect();
+      }
+    }, {
+      rootMargin: "100px",
+    });
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [image.id]);
+
+  const handleDelete = () => onDelete(image.id);
   const handleSelect = () => {
     onSelect?.(image);
   };
 
+  const imgSrc = isLoaded ? image.thumbnail : BLANK_IMAGE;
+
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       <button
+        ref={triggerRef}
         type="button"
         onClick={handleSelect}
         className="relative aspect-square w-full overflow-hidden bg-zinc-100"
       >
         <img
-          src={image.thumbnail}
+          src={imgSrc}
+          data-loaded={isLoaded ? "true" : "false"}
+          data-src={image.thumbnail}
+          loading="lazy"
           alt={image.fileName}
           className="h-full w-full object-cover transition group-hover:scale-105"
         />
@@ -60,4 +99,6 @@ export default function ImageCard({
       </div>
     </article>
   );
-}
+};
+
+export default memo(ImageCardComponent);

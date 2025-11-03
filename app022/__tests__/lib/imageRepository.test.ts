@@ -2,6 +2,7 @@ import Dexie from "dexie";
 import { initDB } from "../../lib/db";
 import {
   saveImage,
+  saveImages,
   listImages,
   deleteImage,
 } from "../../lib/imageRepository";
@@ -42,5 +43,21 @@ describe("imageRepository", () => {
     await deleteImage("delete-me");
     const stored = await listImages();
     expect(stored).toHaveLength(0);
+  });
+
+  it("stores multiple images in a single batch", async () => {
+    const images = [
+      createImage({ id: "a", fileName: "a.png" }),
+      createImage({ id: "b", fileName: "b.png" }),
+      createImage({ id: "c", fileName: "c.png" }),
+    ];
+
+    await saveImages(images);
+    const stored = await listImages();
+    expect(stored.map((item) => item.fileName).sort()).toEqual([
+      "a.png",
+      "b.png",
+      "c.png",
+    ]);
   });
 });
