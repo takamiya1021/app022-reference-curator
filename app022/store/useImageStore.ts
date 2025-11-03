@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { saveImage, saveImages } from "@/lib/imageRepository";
 import type { ImageData, Tag } from "@/types/index";
 
 type ImageStoreState = {
@@ -11,6 +12,7 @@ type ImageStoreState = {
 
 type ImageStoreActions = {
   addImage: (image: ImageData) => Promise<void>;
+  addImages: (images: ImageData[]) => Promise<void>;
   removeImage: (id: string) => Promise<void>;
   updateImage: (id: string, updates: Partial<ImageData>) => Promise<void>;
   addTag: (imageId: string, tag: string) => Promise<void>;
@@ -33,6 +35,33 @@ const createTag = (name: string): Tag => ({
 const sortTagsByName = (tags: Tag[]): Tag[] =>
   [...tags].sort((a, b) => a.name.localeCompare(b.name));
 
+const appendImages = (
+  state: ImageStoreState,
+  images: ImageData[],
+): Pick<ImageStoreState, "images" | "tags"> => {
+  if (images.length === 0) {
+    return { images: state.images, tags: state.tags };
+  }
+
+  const nextImages = [...state.images, ...images];
+  const tagMap = new Map<string, Tag>();
+  state.tags.forEach((tag) => tagMap.set(tag.name, { ...tag }));
+
+  images.forEach((image) => {
+    image.tags.forEach((tagName) => {
+      const existing = tagMap.get(tagName);
+      if (existing) {
+        tagMap.set(tagName, { ...existing, count: existing.count + 1 });
+      } else {
+        tagMap.set(tagName, createTag(tagName));
+      }
+    });
+  });
+
+  const nextTags = sortTagsByName(Array.from(tagMap.values()));
+  return { images: nextImages, tags: nextTags };
+};
+
 export const useImageStore = create<ImageStore>()(
   persist(
     (set, get) => ({
@@ -41,22 +70,13 @@ export const useImageStore = create<ImageStore>()(
       selectedTags: [],
       searchQuery: "",
       addImage: async (image) => {
-        set((state) => {
-          const nextTags = image.tags.reduce<Tag[]>((acc, tagName) => {
-            const existingIndex = acc.findIndex((candidate) => candidate.name === tagName);
-            if (existingIndex !== -1) {
-              const existing = acc[existingIndex];
-              const updated = { ...existing, count: existing.count + 1 };
-              return acc.map((tag, idx) => (idx === existingIndex ? updated : tag));
-            }
-            return [...acc, createTag(tagName)];
-          }, [...state.tags]);
-
-          return {
-            images: [...state.images, image],
-            tags: sortTagsByName(nextTags),
-          };
-        });
+        await saveImage(image);
+        set((state) => appendImages(state, [image]));
+      },
+      addImages: async (images) => {
+        if (images.length === 0) return;
+        await saveImages(images);
+        set((state) => appendImages(state, images));
       },
       removeImage: async (id) => {
         set((state) => {

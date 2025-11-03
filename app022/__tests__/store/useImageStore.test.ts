@@ -89,4 +89,19 @@ describe("useImageStore", () => {
     filtered = useImageStore.getState().filteredImages();
     expect(filtered.map((image) => image.id)).toEqual(["b"]);
   });
+
+  it("adds multiple images in a batch", async () => {
+    const images = [
+      createImage({ id: "a", fileName: "a.png", tags: ["sunset"] }),
+      createImage({ id: "b", fileName: "b.png", tags: ["ocean"] }),
+    ];
+
+    await act(async () => {
+      await useImageStore.getState().addImages(images);
+    });
+
+    const state = useImageStore.getState();
+    expect(state.images).toHaveLength(2);
+    expect(state.tags.map((tag) => tag.name).sort()).toEqual(["ocean", "sunset"]);
+  });
 });
