@@ -30,6 +30,9 @@ const createTag = (name: string): Tag => ({
   createdAt: new Date(),
 });
 
+const sortTagsByName = (tags: Tag[]): Tag[] =>
+  [...tags].sort((a, b) => a.name.localeCompare(b.name));
+
 export const useImageStore = create<ImageStore>()(
   persist(
     (set, get) => ({
@@ -38,35 +41,43 @@ export const useImageStore = create<ImageStore>()(
       selectedTags: [],
       searchQuery: "",
       addImage: async (image) => {
-        set((state) => ({
-          images: [...state.images, image],
-          tags: image.tags.reduce((acc, tagName) => {
-            const existing = acc.find((candidate) => candidate.name === tagName);
-            if (existing) {
-              existing.count += 1;
-              return acc;
+        set((state) => {
+          const nextTags = image.tags.reduce<Tag[]>((acc, tagName) => {
+            const existingIndex = acc.findIndex((candidate) => candidate.name === tagName);
+            if (existingIndex !== -1) {
+              const existing = acc[existingIndex];
+              const updated = { ...existing, count: existing.count + 1 };
+              return acc.map((tag, idx) => (idx === existingIndex ? updated : tag));
             }
             return [...acc, createTag(tagName)];
-          }, [...state.tags]),
-        }));
+          }, [...state.tags]);
+
+          return {
+            images: [...state.images, image],
+            tags: sortTagsByName(nextTags),
+          };
+        });
       },
       removeImage: async (id) => {
         set((state) => {
           const image = state.images.find((item) => item.id === id);
           const remainingImages = state.images.filter((item) => item.id !== id);
-          let nextTags = state.tags;
-          if (image) {
-            nextTags = image.tags.reduce((acc, tagName) => {
-              const tag = acc.find((item) => item.name === tagName);
-              if (!tag) return acc;
-              const updated = acc.map((item) =>
-                item.name === tagName
-                  ? { ...item, count: Math.max(0, item.count - 1) }
-                  : item,
-              );
-              return updated.filter((item) => item.count > 0);
-            }, [...state.tags]);
-          }
+          const nextTags = image
+            ? sortTagsByName(
+                image.tags.reduce<Tag[]>((acc, tagName) => {
+                  const tag = acc.find((item) => item.name === tagName);
+                  if (!tag) return acc;
+                  const updated = acc
+                    .map((candidate) =>
+                      candidate.name === tagName
+                        ? { ...candidate, count: Math.max(0, candidate.count - 1) }
+                        : candidate,
+                    )
+                    .filter((candidate) => candidate.count > 0);
+                  return updated;
+                }, [...state.tags]),
+              )
+            : sortTagsByName(state.tags);
           return {
             images: remainingImages,
             tags: nextTags,
@@ -101,11 +112,13 @@ export const useImageStore = create<ImageStore>()(
           const tags = (() => {
             const existing = state.tags.find((tag) => tag.name === tagName);
             if (existing) {
-              return state.tags.map((tag) =>
-                tag.name === tagName ? { ...tag, count: tag.count + 1 } : tag,
+              return sortTagsByName(
+                state.tags.map((tag) =>
+                  tag.name === tagName ? { ...tag, count: tag.count + 1 } : tag,
+                ),
               );
             }
-            return [...state.tags, createTag(tagName)];
+            return sortTagsByName([...state.tags, createTag(tagName)]);
           })();
 
           return { images, tags };
@@ -123,11 +136,13 @@ export const useImageStore = create<ImageStore>()(
             };
           });
 
-          const tags = state.tags
-            .map((tag) =>
-              tag.name === tagName ? { ...tag, count: Math.max(0, tag.count - 1) } : tag,
-            )
-            .filter((tag) => tag.count > 0);
+          const tags = sortTagsByName(
+            state.tags
+              .map((tag) =>
+                tag.name === tagName ? { ...tag, count: Math.max(0, tag.count - 1) } : tag,
+              )
+              .filter((tag) => tag.count > 0),
+          );
 
           return { images, tags };
         });
@@ -136,13 +151,19 @@ export const useImageStore = create<ImageStore>()(
       setSearchQuery: (query) => set({ searchQuery: query }),
       filteredImages: () => {
         const { images, selectedTags, searchQuery } = get();
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+
         return images.filter((image) => {
           const matchesTags =
             selectedTags.length === 0 ||
             selectedTags.every((tag) => image.tags.includes(tag));
           const matchesQuery =
-            searchQuery.trim().length === 0 ||
-            image.fileName.toLowerCase().includes(searchQuery.toLowerCase());
+            normalizedQuery.length === 0 ||
+            image.fileName.toLowerCase().includes(normalizedQuery) ||
+            image.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery)) ||
+            (image.memo && image.memo.toLowerCase().includes(normalizedQuery)) ||
+            (image.aiDescription &&
+              image.aiDescription.toLowerCase().includes(normalizedQuery));
           return matchesTags && matchesQuery;
         });
       },
