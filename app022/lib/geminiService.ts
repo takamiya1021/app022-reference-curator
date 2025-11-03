@@ -53,6 +53,8 @@ const ensureApiKey = (): string => {
   return key;
 };
 
+export const getGeminiApiKey = (): string | null => readStoredKey();
+
 const writeApiKey = (key: string | null) => {
   try {
     if (typeof window !== "undefined" && window.localStorage) {

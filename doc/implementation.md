@@ -238,7 +238,7 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
 - **Green**: generateConcept 実装
 - **Refactor**: プロンプト最適化
 
-#### 【 】6-4. APIキー設定UI（1時間）
+#### 【x】6-4. APIキー設定UI（1時間）
 - **Red**: 設定画面テスト
 - **Green**: ApiKeySettings コンポーネント実装
 - **Refactor**: マスク表示、LocalStorage保存
