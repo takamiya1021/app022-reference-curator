@@ -1,0 +1,9 @@
+{
+  "testFiles": ["types/index.test-d.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}

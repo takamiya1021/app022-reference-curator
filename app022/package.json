@@ -2,6 +2,7 @@
   "name": "app022",
   "version": "0.1.0",
   "private": true,
+  "types": "types/index.ts",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +10,8 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:types": "tsd"
   },
   "dependencies": {
     "next": "16.0.1",
@@ -32,6 +34,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.5",
+    "tsd": "^0.33.0",
     "typescript": "^5"
   }
 }
