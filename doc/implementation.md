@@ -105,32 +105,32 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
 
 ### タスク
 
-#### 【 】2-1. Headerコンポーネント（1時間）
+#### 【x】2-1. Headerコンポーネント（1時間）
 - **Red**: Header表示テスト
 - **Green**: `app/components/Header.tsx` 実装
 - **Refactor**: スタイル・レイアウト調整
 
-#### 【 】2-2. ImageUploaderコンポーネント（3時間）
+#### 【x】2-2. ImageUploaderコンポーネント（3時間）
 - **Red**: 画像アップロードテスト（モック）
 - **Green**: react-dropzone 統合、サムネイル生成
 - **Refactor**: エラーハンドリング改善
 
-#### 【 】2-3. ImageCardコンポーネント（2時間）
+#### 【x】2-3. ImageCardコンポーネント（2時間）
 - **Red**: カード表示・操作テスト
 - **Green**: カードUI実装（サムネイル、タグ、削除ボタン）
 - **Refactor**: React.memo適用
 
-#### 【 】2-4. ImageGridコンポーネント（2時間）
+#### 【x】2-4. ImageGridコンポーネント（2時間）
 - **Red**: グリッドレイアウトテスト
 - **Green**: レスポンシブグリッド実装
 - **Refactor**: パフォーマンス最適化
 
-#### 【 】2-5. TagManagerコンポーネント（2時間）
+#### 【x】2-5. TagManagerコンポーネント（2時間）
 - **Red**: タグ追加・削除テスト
 - **Green**: タグ入力UI、オートコンプリート実装
 - **Refactor**: UX改善
 
-#### 【 】2-6. TagFilterコンポーネント（2時間）
+#### 【x】2-6. TagFilterコンポーネント（2時間）
 - **Red**: フィルタリングテスト
 - **Green**: タグフィルターUI実装
 - **Refactor**: フィルター状態管理最適化
