@@ -220,12 +220,12 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
 
 ### タスク
 
-#### 【 】6-1. Gemini API統合（2時間）
+#### 【x】6-1. Gemini API統合（2時間）
 - **Red**: API接続テスト（モック）
 - **Green**: `lib/geminiService.ts` 実装、@google/genai インストール
 - **Refactor**: エラーハンドリング強化
 
-#### 【 】6-2. 画像分析・タグ生成（3時間）
+#### 【x】6-2. 画像分析・タグ生成（3時間）
 - **Red**: 画像分析テスト（モック）
 - **Green**: analyzeImage 実装
   - Base64エンコード
@@ -233,7 +233,7 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
   - タグパース
 - **Refactor**: レート制限対応
 
-#### 【 】6-3. コンセプト提案（2時間）
+#### 【x】6-3. コンセプト提案（2時間）
 - **Red**: コンセプト生成テスト
 - **Green**: generateConcept 実装
 - **Refactor**: プロンプト最適化
