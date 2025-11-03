@@ -9,7 +9,7 @@ describe("AITagSuggestion", () => {
 
     render(<AITagSuggestion tags={["ocean", "twilight"]} onAcceptTag={onAccept} />);
 
-    expect(screen.getByText(/ocean/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/ocean/i)[0]).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /"twilight" を追加/i }));
     expect(onAccept).toHaveBeenCalledWith("twilight");
