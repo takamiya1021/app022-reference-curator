@@ -144,7 +144,7 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
 
 ### タスク
 
-#### 【 】3-1. 画像圧縮・サムネイル生成（2時間）
+#### 【x】3-1. 画像圧縮・サムネイル生成（2時間）
 - **Red**: 画像圧縮テスト
 - **Green**: browser-image-compression 統合
   ```typescript
@@ -153,12 +153,12 @@ IndexedDB、Zustand Storeなど、アプリの基盤となるデータ層を実�
   ```
 - **Refactor**: 圧縮品質調整
 
-#### 【 】3-2. IndexedDB保存・読み込み（2時間）
+#### 【x】3-2. IndexedDB保存・読み込み（2時間）
 - **Red**: 保存・読み込みテスト
 - **Green**: Blob保存、Base64変換実装
 - **Refactor**: エラーハンドリング
 
-#### 【 】3-3. 画像削除機能（1時間）
+#### 【x】3-3. 画像削除機能（1時間）
 - **Red**: 削除テスト（DB + UI）
 - **Green**: 削除ロジック実装
 - **Refactor**: 確認ダイアログ追加
