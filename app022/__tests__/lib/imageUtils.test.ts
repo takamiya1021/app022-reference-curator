@@ -1,13 +1,18 @@
-import imageCompression, {
-  getDataUrlFromFile,
-} from "browser-image-compression";
+import imageCompression from "browser-image-compression";
 import { generateThumbnail } from "../../lib/imageUtils";
 
-jest.mock("browser-image-compression", () => ({
-  __esModule: true,
-  default: jest.fn(async (file: File) => file),
-  getDataUrlFromFile: jest.fn(async () => "data:image/png;base64,MOCK"),
-}));
+type MockedImageCompression = jest.Mock & {
+  getDataUrlFromFile: jest.Mock;
+};
+
+jest.mock("browser-image-compression", () => {
+  const mock = jest.fn(async (file: File) => file) as MockedImageCompression;
+  mock.getDataUrlFromFile = jest.fn(async () => "data:image/png;base64,MOCK");
+  return {
+    __esModule: true,
+    default: mock,
+  };
+});
 
 describe("generateThumbnail", () => {
   it("returns a base64 data URL thumbnail", async () => {
@@ -18,7 +23,7 @@ describe("generateThumbnail", () => {
     const thumbnail = await generateThumbnail(file);
 
     expect(imageCompression).toHaveBeenCalled();
-    expect(getDataUrlFromFile).toHaveBeenCalled();
+    expect((imageCompression as MockedImageCompression).getDataUrlFromFile).toHaveBeenCalled();
     expect(thumbnail).toBe("data:image/png;base64,MOCK");
   });
 });

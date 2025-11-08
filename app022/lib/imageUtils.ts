@@ -1,6 +1,4 @@
-import imageCompression, {
-  getDataUrlFromFile,
-} from "browser-image-compression";
+import imageCompression from "browser-image-compression";
 
 const THUMBNAIL_MAX_WIDTH = 320;
 const THUMBNAIL_MAX_HEIGHT = 320;
@@ -14,5 +12,5 @@ export const generateThumbnail = async (file: File): Promise<string> => {
     fileType: file.type,
   });
 
-  return getDataUrlFromFile(compressed);
+  return imageCompression.getDataUrlFromFile(compressed);
 };
