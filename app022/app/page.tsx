@@ -1,30 +1,91 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import ImageUploader from "@/app/components/ImageUploader";
+import ImageGrid from "@/app/components/ImageGrid";
+import ImageDetailModal from "@/app/components/ImageDetailModal";
+import ImageCard from "@/app/components/ImageCard";
+import TagFilter from "@/app/components/TagFilter";
+import TagManager from "@/app/components/TagManager";
+import Header from "@/app/components/Header";
+import Slideshow from "@/app/components/Slideshow";
+import ApiKeySettings from "@/app/components/ApiKeySettings";
+import { useImageStore } from "@/store/useImageStore";
+import type { ImageData } from "@/types";
+
 export default function Home() {
+  const selectFilteredImages = useImageStore((state) => state.filteredImages);
+  const images = selectFilteredImages();
+  const tags = useImageStore((state) => state.tags);
+  const selectedTags = useImageStore((state) => state.selectedTags);
+  const setSelectedTags = useImageStore((state) => state.setSelectedTags);
+  const addTag = useImageStore((state) => state.addTag);
+  const removeTag = useImageStore((state) => state.removeTag);
+  const updateImage = useImageStore((state) => state.updateImage);
+  const removeImage = useImageStore((state) => state.removeImage);
+
+  const [detailImage, setDetailImage] = useState<ImageData | null>(null);
+  const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+
+  const filterOptions = useMemo(
+    () => tags.map((tag) => ({ name: tag.name, count: tag.count })),
+    [tags],
+  );
+
+  const handleAcceptTag = async (imageId: string, tag: string) => {
+    await addTag(imageId, tag);
+  };
+
+  const handleMemoSave = async (imageId: string, memo: string) => {
+    await updateImage(imageId, { memo });
+  };
+
+  const openSlideshow = () => {
+    if (images.length === 0) return;
+    setIsSlideshowOpen(true);
+  };
+
+  const closeSlideshow = () => setIsSlideshowOpen(false);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-100 px-6 py-12 text-zinc-900">
-      <span className="rounded-full bg-zinc-900 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-zinc-100">
-        Visual reference curator
-      </span>
-      <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-        Reference Curator
-      </h1>
-      <p className="max-w-xl text-center text-lg text-zinc-600 sm:text-xl">
-        Collect inspirational images, tag them instantly, and play them back as a
-        moodboard slideshow to stay in the creative flow.
-      </p>
-      <div className="flex flex-wrap justify-center gap-4">
-        <button
-          type="button"
-          className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-medium text-zinc-100 shadow-lg shadow-zinc-900/20 transition hover:bg-zinc-800"
-        >
-          Start collecting
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-zinc-300 px-6 py-3 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
-        >
-          View moodboard
-        </button>
-      </div>
+    <main className="flex min-h-screen flex-col bg-zinc-50">
+      <Header
+        onOpenUploader={() => document.getElementById("image-uploader-input")?.click()}
+        onStartSlideshow={openSlideshow}
+        onOpenSettings={() => {
+          const element = document.getElementById("settings-section");
+          element?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
+      <section className="grid gap-6 px-6 py-10 lg:grid-cols-[360px_1fr]">
+        <div className="space-y-6">
+          <ImageUploader />
+          <TagFilter tags={filterOptions} selected={selectedTags} onChange={setSelectedTags} />
+          <ApiKeySettings />
+        </div>
+
+        <div className="space-y-6">
+          <ImageGrid
+            images={images}
+            onDeleteImage={removeImage}
+            onSelectImage={(image) => setDetailImage(image)}
+          />
+        </div>
+      </section>
+
+      {detailImage ? (
+        <ImageDetailModal
+          image={detailImage}
+          isOpen
+          onClose={() => setDetailImage(null)}
+          onUpdateMemo={handleMemoSave}
+          onAcceptTags={handleAcceptTag}
+          aiSuggestions={[]}
+        />
+      ) : null}
+
+      <Slideshow images={images} isOpen={isSlideshowOpen} onClose={closeSlideshow} interval={5} />
     </main>
   );
 }
