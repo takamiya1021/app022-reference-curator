@@ -9,9 +9,10 @@ type ImageCardProps = {
   image: ImageData;
   onDelete: (id: string) => void;
   onSelect?: (image: ImageData) => void;
+  "data-testid"?: string;
 };
 
-const ImageCardComponent = ({ image, onDelete, onSelect }: ImageCardProps) => {
+const ImageCardComponent = ({ image, onDelete, onSelect, "data-testid": dataTestId }: ImageCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
@@ -53,7 +54,10 @@ const ImageCardComponent = ({ image, onDelete, onSelect }: ImageCardProps) => {
   const imgSrc = isLoaded ? image.thumbnail : BLANK_IMAGE;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <article
+      className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      data-testid={dataTestId}
+    >
       <button
         ref={triggerRef}
         type="button"

@@ -66,6 +66,7 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
       aria-labelledby="image-detail-title"
       tabIndex={-1}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6"
+      data-testid="image-detail-modal"
     >
       <div className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
         <header className="flex items-start justify-between gap-6 border-b border-zinc-200 bg-zinc-50 px-6 py-4">

@@ -21,9 +21,10 @@ export default function ImageGrid({
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-testid="image-grid">
       {images.map((image) => (
         <ImageCard
+          data-testid="image-card"
           key={image.id}
           image={image}
           onDelete={onDeleteImage}
