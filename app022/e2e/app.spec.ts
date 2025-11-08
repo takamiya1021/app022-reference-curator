@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-// eslint-disable-next-line playwright/no-skipped-test
-test.skip("user can upload media and open detail modal", async ({ page }) => {
+test("user can upload media and open detail modal", async ({ page }) => {
   await page.goto("/");
   const fileChooserPromise = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /browse files/i }).click();

@@ -1,0 +1,50 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: Visual reference curator
+        - heading "Reference Curator" [level=1] [ref=e6]
+      - generic [ref=e7]:
+        - button "Add images" [ref=e8]
+        - button "Start slideshow" [ref=e9]
+        - button "Settings" [ref=e10]
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - heading "Collect visuals in seconds" [level=2] [ref=e14]
+          - paragraph [ref=e15]: Drag & drop inspiration or pick files to add them to your library.
+          - generic [ref=e16]:
+            - button "Browse files" [ref=e17]
+            - generic [ref=e18] [cursor=pointer]: Add images
+          - paragraph [ref=e19]: 画像の追加中にエラーが発生しました
+        - group "Filter by tags" [ref=e20]:
+          - generic [ref=e21]: Filter by tags
+          - paragraph [ref=e22]: No tags collected yet.
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - heading "Gemini API 設定" [level=2] [ref=e25]
+            - paragraph [ref=e26]: Google Gemini API キーを保存すると、画像の自動タグ生成やコンセプト提案が利用できます。
+          - generic [ref=e27]:
+            - text: Gemini API Key
+            - textbox "Gemini API Key" [ref=e28]:
+              - /placeholder: sk-...
+          - generic [ref=e29]:
+            - button "保存" [ref=e30]
+            - button "削除" [ref=e31]
+      - generic [ref=e33]: Drop images to start curating your moodboard.
+  - generic [ref=e38] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e39]:
+      - img [ref=e40]
+    - generic [ref=e43]:
+      - button "Open issues overlay" [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: "0"
+          - generic [ref=e47]: "1"
+        - generic [ref=e48]: Issue
+      - button "Collapse issues badge" [ref=e49]:
+        - img [ref=e50]
+  - alert [ref=e52]
+```
