@@ -1,5 +1,5 @@
 import userEvent from "@testing-library/user-event";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import ImageUploader from "../../app/components/ImageUploader";
 
 const mockAddImages = jest.fn();
@@ -61,5 +61,32 @@ describe("ImageUploader", () => {
         expect.objectContaining({ fileName: "bulk.png" }),
       ]));
     });
+  });
+
+  it("shows error for unsupported file types", async () => {
+    const user = userEvent.setup();
+    render(<ImageUploader />);
+
+    const fileInput = screen.getByLabelText(/add images/i);
+    const file = new File(["text"], "note.txt", { type: "text/plain" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(await screen.findByTestId("uploader-error")).toHaveTextContent(/対応していない画像形式です/i);
+    expect(mockAddImages).not.toHaveBeenCalled();
+  });
+
+  it("shows error when file exceeds size limit", async () => {
+    const user = userEvent.setup();
+    render(<ImageUploader />);
+
+    const fileInput = screen.getByLabelText(/add images/i);
+    const largeFile = new File([new ArrayBuffer(10 * 1024 * 1024)], "large.png", { type: "image/png" });
+    Object.defineProperty(largeFile, "size", { value: 11 * 1024 * 1024 });
+
+    fireEvent.change(fileInput, { target: { files: [largeFile] } });
+
+    expect(await screen.findByTestId("uploader-error")).toHaveTextContent(/10MB/);
+    expect(mockAddImages).not.toHaveBeenCalled();
   });
 });

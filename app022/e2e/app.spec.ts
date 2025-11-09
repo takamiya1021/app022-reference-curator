@@ -15,7 +15,7 @@ test("user can upload media and open detail modal", async ({ page }) => {
     buffer: tinyPng,
   });
 
-  await expect(page.locator("text=/枚の画像を追加しました/"))
+  await expect(page.getByTestId("uploader-status"))
     .toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId("image-grid")).toBeVisible();
   await expect(page.getByTestId("image-card").first()).toBeVisible();

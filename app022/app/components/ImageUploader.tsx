@@ -1,11 +1,29 @@
 "use client";
 
-import { ChangeEvent, useRef, useState, useTransition } from "react";
+import { ChangeEvent, useMemo, useRef, useState, useTransition } from "react";
 import { createImagesFromFiles } from "@/lib/imageFactory";
 import { useImageStore } from "@/store/useImageStore";
 
 type ImageUploaderProps = {
   onFilesAdded?: (files: File[]) => void;
+};
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+const ALLOWED_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+
+const getExtension = (fileName: string): string => {
+  const lastDot = fileName.lastIndexOf(".");
+  if (lastDot === -1) return "";
+  return fileName.slice(lastDot).toLowerCase();
+};
+
+const isAllowedType = (file: File): boolean => {
+  if (file.type && ALLOWED_MIME_TYPES.includes(file.type)) {
+    return true;
+  }
+  const ext = getExtension(file.name);
+  return ALLOWED_EXTS.includes(ext);
 };
 
 export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
@@ -14,6 +32,10 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const validationMessage = useMemo(
+    () => "対応していない画像形式です (JPG/PNG/GIF/WebP)",
+    [],
+  );
 
   const handleImport = async (files: File[]) => {
     if (files.length === 0) return;
@@ -32,6 +54,23 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
     const files = event.target.files;
     if (!files || files.length === 0) return;
     const fileList = Array.from(files);
+
+    const hasInvalidType = fileList.some((file) => !isAllowedType(file));
+    if (hasInvalidType) {
+      setError(validationMessage);
+      setStatus("");
+      event.target.value = "";
+      return;
+    }
+
+    const oversized = fileList.find((file) => file.size > MAX_FILE_SIZE_BYTES);
+    if (oversized) {
+      setError("ファイルサイズが10MBを超えています");
+      setStatus("");
+      event.target.value = "";
+      return;
+    }
+
     onFilesAdded?.(fileList);
 
     startTransition(() => {
@@ -76,8 +115,16 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
           Add images
         </label>
       </div>
-      {status && <p className="mt-4 text-sm text-emerald-600">{status}</p>}
-      {error && <p className="mt-2 text-sm text-rose-600">{error}</p>}
+      {status && (
+        <p data-testid="uploader-status" className="mt-4 text-sm text-emerald-600">
+          {status}
+        </p>
+      )}
+      {error && (
+        <p data-testid="uploader-error" className="mt-2 text-sm text-rose-600">
+          {error}
+        </p>
+      )}
     </section>
   );
 }
