@@ -26,6 +26,8 @@ export default function Home() {
 
   const [detailImage, setDetailImage] = useState<ImageData | null>(null);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
+  const lastError = useImageStore((state) => state.lastError);
+  const setLastError = useImageStore((state) => state.setLastError);
 
   const filterOptions = useMemo(
     () => tags.map((tag) => ({ name: tag.name, count: tag.count })),
@@ -49,6 +51,18 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col bg-zinc-50">
+      {lastError && (
+        <div className="mx-6 mt-4 flex items-center justify-between rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700" data-testid="global-error">
+          <span>{lastError}</span>
+          <button
+            type="button"
+            className="rounded-full border border-rose-200/60 px-3 py-1 text-xs text-rose-700 hover:bg-rose-100"
+            onClick={() => setLastError(null)}
+          >
+            閉じる
+          </button>
+        </div>
+      )}
       <Header
         onOpenUploader={() => document.getElementById("image-uploader-input")?.click()}
         onStartSlideshow={openSlideshow}

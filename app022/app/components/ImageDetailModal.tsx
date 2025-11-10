@@ -3,6 +3,7 @@
 import { ChangeEvent, FC, KeyboardEvent, useEffect, useRef, useState } from "react";
 import type { ImageData } from "@/types";
 import AITagSuggestion from "./AITagSuggestion";
+import { createGeminiClient } from "@/lib/geminiService";
 
 type ImageDetailModalProps = {
   image: ImageData;
@@ -22,7 +23,14 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
   aiSuggestions,
 }) => {
   const [memoValue, setMemoValue] = useState(image.memo ?? "");
+  const [localSuggestions, setLocalSuggestions] = useState(aiSuggestions);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
   const dialogRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setLocalSuggestions(aiSuggestions);
+  }, [aiSuggestions, image.id]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,6 +64,21 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
 
   const handleAcceptTag = (tag: string) => {
     onAcceptTags(image.id, tag);
+  };
+
+  const handleFetchSuggestions = async () => {
+    setAiError("");
+    setAiLoading(true);
+    try {
+      const client = createGeminiClient();
+      const result = await client.analyzeImage(image.thumbnail);
+      setLocalSuggestions(result.tags ?? []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AIタグ生成でエラーが発生しました";
+      setAiError(message);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -129,7 +152,25 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
               </button>
             </div>
 
-            <AITagSuggestion tags={aiSuggestions} onAcceptTag={handleAcceptTag} />
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <h3 className="text-sm font-semibold text-zinc-700">AIタグ候補</h3>
+                <button
+                  type="button"
+                  onClick={handleFetchSuggestions}
+                  disabled={aiLoading}
+                  className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 disabled:opacity-50"
+                >
+                  {aiLoading ? "生成中..." : "AIタグを取得"}
+                </button>
+              </div>
+              {aiError && (
+                <p className="text-xs text-rose-600" data-testid="ai-error">
+                  {aiError}
+                </p>
+              )}
+              <AITagSuggestion tags={localSuggestions} onAcceptTag={handleAcceptTag} />
+            </div>
           </div>
         </div>
       </div>

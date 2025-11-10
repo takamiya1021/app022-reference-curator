@@ -1,6 +1,12 @@
 import { act } from "@testing-library/react";
 import { useImageStore } from "../../store/useImageStore";
 import type { ImageData } from "../../types";
+import { saveImages } from "../../lib/imageRepository";
+
+jest.mock("@/lib/imageRepository", () => ({
+  saveImage: jest.fn().mockResolvedValue(undefined),
+  saveImages: jest.fn().mockResolvedValue(undefined),
+}));
 
 const createImage = (overrides: Partial<ImageData> = {}): ImageData => ({
   id: crypto.randomUUID(),
@@ -103,5 +109,16 @@ describe("useImageStore", () => {
     const state = useImageStore.getState();
     expect(state.images).toHaveLength(2);
     expect(state.tags.map((tag) => tag.name).sort()).toEqual(["ocean", "sunset"]);
+  });
+
+  it("records lastError when addImages fails", async () => {
+    (saveImages as jest.Mock).mockRejectedValueOnce(new Error("QuotaExceeded"));
+    const image = createImage({ id: "fail" });
+
+    await expect(
+      useImageStore.getState().addImages([image]),
+    ).rejects.toThrow(/ストレージ容量/);
+
+    expect(useImageStore.getState().lastError).toMatch(/ストレージ容量/);
   });
 });

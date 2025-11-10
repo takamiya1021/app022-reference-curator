@@ -2,6 +2,15 @@ import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import ImageDetailModal from "../../app/components/ImageDetailModal";
 import type { ImageData } from "../../types";
+import { createGeminiClient } from "../../lib/geminiService";
+
+jest.mock("@/lib/geminiService", () => (
+  {
+    createGeminiClient: jest.fn(() => ({
+      analyzeImage: jest.fn().mockResolvedValue({ tags: ["ai"], description: "" }),
+    })),
+  }
+));
 
 describe("ImageDetailModal", () => {
   const image: ImageData = {
@@ -71,6 +80,27 @@ describe("ImageDetailModal", () => {
 
     await user.click(screen.getByRole("button", { name: /"ocean" を追加/i }));
     expect(onAcceptTags).toHaveBeenCalledWith("img-1", "ocean");
+  });
+
+  it("shows error when AI suggestion fetch fails", async () => {
+    const user = userEvent.setup();
+    (createGeminiClient as jest.Mock).mockReturnValueOnce({
+      analyzeImage: jest.fn().mockRejectedValue(new Error("AI error")),
+    });
+
+    render(
+      <ImageDetailModal
+        image={image}
+        isOpen
+        onClose={() => {}}
+        onUpdateMemo={jest.fn()}
+        onAcceptTags={jest.fn()}
+        aiSuggestions={[]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /AIタグを取得/i }));
+    expect(await screen.findByTestId("ai-error")).toHaveTextContent(/AI error/);
   });
 
   it("closes modal via button", async () => {

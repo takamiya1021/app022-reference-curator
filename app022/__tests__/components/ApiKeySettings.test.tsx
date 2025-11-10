@@ -51,7 +51,6 @@ describe("ApiKeySettings", () => {
     });
   });
 
-});
   it("shows connection error when Gemini verification fails", async () => {
     (verifyGeminiKey as jest.Mock).mockRejectedValueOnce(new Error("Mock Gemini error"));
     const user = userEvent.setup();
@@ -61,3 +60,4 @@ describe("ApiKeySettings", () => {
 
     await expect(screen.findByText(/Mock Gemini error/i)).resolves.toBeVisible();
   });
+});

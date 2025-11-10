@@ -8,6 +8,7 @@ type ImageStoreState = {
   tags: Tag[];
   selectedTags: string[];
   searchQuery: string;
+  lastError: string | null;
 };
 
 type ImageStoreActions = {
@@ -20,6 +21,7 @@ type ImageStoreActions = {
   setSelectedTags: (tags: string[]) => void;
   setSearchQuery: (query: string) => void;
   filteredImages: () => ImageData[];
+  setLastError: (message: string | null) => void;
 };
 
 export type ImageStore = ImageStoreState & ImageStoreActions;
@@ -62,6 +64,20 @@ const appendImages = (
   return { images: nextImages, tags: nextTags };
 };
 
+const formatDexieError = (error: unknown): string => {
+  const raw = error instanceof Error ? error.message : String(error ?? "");
+  if (/quota|storage|disk/i.test(raw)) {
+    return "ストレージ容量が不足しています。不要な画像を削除してください";
+  }
+  return raw || "データ保存中にエラーが発生しました";
+};
+
+const handleStoreError = (error: unknown, set: (partial: Partial<ImageStoreState>) => void): never => {
+  const friendly = formatDexieError(error);
+  set({ lastError: friendly });
+  throw new Error(friendly);
+};
+
 export const useImageStore = create<ImageStore>()(
   persist(
     (set, get) => ({
@@ -69,53 +85,71 @@ export const useImageStore = create<ImageStore>()(
       tags: [],
       selectedTags: [],
       searchQuery: "",
+      lastError: null,
+      setLastError: (message) => set({ lastError: message }),
       addImage: async (image) => {
-        await saveImage(image);
-        set((state) => appendImages(state, [image]));
+        try {
+          await saveImage(image);
+          set((state) => appendImages(state, [image]));
+        } catch (error) {
+          handleStoreError(error, (partial) => set(partial));
+        }
       },
       addImages: async (images) => {
         if (images.length === 0) return;
-        await saveImages(images);
-        set((state) => appendImages(state, images));
+        try {
+          await saveImages(images);
+          set((state) => appendImages(state, images));
+        } catch (error) {
+          handleStoreError(error, (partial) => set(partial));
+        }
       },
       removeImage: async (id) => {
-        set((state) => {
-          const image = state.images.find((item) => item.id === id);
-          const remainingImages = state.images.filter((item) => item.id !== id);
-          const nextTags = image
-            ? sortTagsByName(
-                image.tags.reduce<Tag[]>((acc, tagName) => {
-                  const tag = acc.find((item) => item.name === tagName);
-                  if (!tag) return acc;
-                  const updated = acc
-                    .map((candidate) =>
-                      candidate.name === tagName
-                        ? { ...candidate, count: Math.max(0, candidate.count - 1) }
-                        : candidate,
-                    )
-                    .filter((candidate) => candidate.count > 0);
-                  return updated;
-                }, [...state.tags]),
-              )
-            : sortTagsByName(state.tags);
-          return {
-            images: remainingImages,
-            tags: nextTags,
-          };
-        });
+        try {
+          set((state) => {
+            const image = state.images.find((item) => item.id === id);
+            const remainingImages = state.images.filter((item) => item.id !== id);
+            const nextTags = image
+              ? sortTagsByName(
+                  image.tags.reduce<Tag[]>((acc, tagName) => {
+                    const tag = acc.find((item) => item.name === tagName);
+                    if (!tag) return acc;
+                    const updated = acc
+                      .map((candidate) =>
+                        candidate.name === tagName
+                          ? { ...candidate, count: Math.max(0, candidate.count - 1) }
+                          : candidate,
+                      )
+                      .filter((candidate) => candidate.count > 0);
+                    return updated;
+                  }, [...state.tags]),
+                )
+              : sortTagsByName(state.tags);
+            return {
+              images: remainingImages,
+              tags: nextTags,
+            };
+          });
+        } catch (error) {
+          handleStoreError(error, (partial) => set(partial));
+        }
       },
       updateImage: async (id, updates) => {
-        set((state) => ({
-          images: state.images.map((image) =>
-            image.id === id
-              ? {
-                  ...image,
-                  ...updates,
-                  updatedAt: updates.updatedAt ?? new Date(),
-                }
-              : image,
-          ),
-        }));
+        try {
+          set((state) => ({
+            images: state.images.map((image) =>
+              image.id === id
+                ? {
+                    ...image,
+                    ...updates,
+                    updatedAt: updates.updatedAt ?? new Date(),
+                  }
+                : image,
+            ),
+          }));
+        } catch (error) {
+          handleStoreError(error, (partial) => set(partial));
+        }
       },
       addTag: async (imageId, tagName) => {
         set((state) => {

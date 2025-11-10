@@ -305,12 +305,12 @@ Lazy Loading、Virtualization、React最適化を実装。
 - **Green**: ファイルタイプ・サイズチェック実装
 - **Refactor**: エラーメッセージ改善
 
-#### 【 】9-2. Gemini APIエラーハンドリング（1時間）
+#### 【x】9-2. Gemini APIエラーハンドリング（1時間）
 - **Red**: APIエラー処理テスト
 - **Green**: レート制限、ネットワークエラー処理
 - **Refactor**: ユーザーフィードバック改善
 
-#### 【 】9-3. IndexedDBエラーハンドリング（1時間）
+#### 【x】9-3. IndexedDBエラーハンドリング（1時間）
 - **Red**: DB容量不足テスト
 - **Green**: 容量不足、データ破損処理
 - **Refactor**: 復旧フロー実装
