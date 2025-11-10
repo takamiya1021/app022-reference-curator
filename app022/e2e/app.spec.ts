@@ -22,3 +22,24 @@ test("user can upload media and open detail modal", async ({ page }) => {
   await page.getByTestId("image-card").first().click();
   await expect(page.getByTestId("image-detail-modal")).toBeVisible();
 });
+
+test("user can upload and start slideshow", async ({ page }) => {
+  await page.goto("/");
+  const fileChooserPromise = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: /browse files/i }).click();
+  const fileChooser = await fileChooserPromise;
+  const tinyPng = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGAAAAAEAAEnNCcKAAAAAElFTkSuQmCC",
+    "base64",
+  );
+  await fileChooser.setFiles({
+    name: "slide.png",
+    mimeType: "image/png",
+    buffer: tinyPng,
+  });
+
+  await expect(page.getByTestId("uploader-status")).toBeVisible({ timeout: 10_000 });
+  await page.getByRole("button", { name: /start slideshow/i }).click();
+  await expect(page.getByRole("dialog", { name: /moodboard slideshow/i })).toBeVisible();
+  await page.getByRole("button", { name: /close slideshow/i }).click();
+});

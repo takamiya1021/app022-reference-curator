@@ -123,6 +123,7 @@ export default function Slideshow({ images, isOpen, onClose, interval }: Slidesh
       ref={containerRef}
       role="dialog"
       aria-modal="true"
+      aria-label="Moodboard slideshow"
       tabIndex={-1}
       className="fixed inset-0 z-50 flex flex-col bg-black/95 text-white"
     >
