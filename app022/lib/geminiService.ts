@@ -105,8 +105,8 @@ const parseInlineData = (dataUrl: string): { mimeType: string; data: string } =>
   };
 };
 
-const requestGemini = async <T>(body: Record<string, unknown>): Promise<T> => {
-  const apiKey = ensureApiKey();
+const requestGemini = async <T>(body: Record<string, unknown>, apiKeyOverride?: string): Promise<T> => {
+  const apiKey = apiKeyOverride ?? ensureApiKey();
 
   const response = await fetch(GEMINI_ENDPOINT, {
     method: "POST",
@@ -211,3 +211,22 @@ export const createGeminiClient = () => {
 };
 
 export type GeminiClient = ReturnType<typeof createGeminiClient>;
+
+export const verifyGeminiKey = async (key: string): Promise<void> => {
+  if (!key) {
+    throw new Error("Gemini API key is not configured. Please set the key in settings.");
+  }
+
+  await requestGemini<GeminiResponse>(
+    {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: "Say OK" }],
+        },
+      ],
+      generationConfig: { temperature: 0 },
+    },
+    key,
+  );
+};

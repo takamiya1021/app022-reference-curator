@@ -1,7 +1,15 @@
 import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
 import ApiKeySettings from "../../app/components/ApiKeySettings";
-import { setGeminiApiKey } from "../../lib/geminiService";
+import { setGeminiApiKey, verifyGeminiKey } from "../../lib/geminiService";
+
+jest.mock("@/lib/geminiService", () => {
+  const actual = jest.requireActual("@/lib/geminiService");
+  return {
+    ...actual,
+    verifyGeminiKey: jest.fn().mockResolvedValue(undefined),
+  };
+});
 
 describe("ApiKeySettings", () => {
   beforeEach(() => {
@@ -44,3 +52,12 @@ describe("ApiKeySettings", () => {
   });
 
 });
+  it("shows connection error when Gemini verification fails", async () => {
+    (verifyGeminiKey as jest.Mock).mockRejectedValueOnce(new Error("Mock Gemini error"));
+    const user = userEvent.setup();
+    render(<ApiKeySettings />);
+    await user.type(screen.getByLabelText(/gemini api key/i), "sk-error");
+    await user.click(screen.getByRole("button", { name: /保存/i }));
+
+    await expect(screen.findByText(/Mock Gemini error/i)).resolves.toBeVisible();
+  });

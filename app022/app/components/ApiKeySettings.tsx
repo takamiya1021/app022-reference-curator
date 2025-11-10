@@ -5,6 +5,7 @@ import {
   clearGeminiApiKey,
   getGeminiApiKey,
   setGeminiApiKey,
+  verifyGeminiKey,
 } from "@/lib/geminiService";
 
 const maskKey = (key: string): string => {
@@ -20,6 +21,7 @@ export default function ApiKeySettings() {
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const stored = getGeminiApiKey();
@@ -53,7 +55,7 @@ export default function ApiKeySettings() {
     setInputValue(event.target.value);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     resetMessages();
     const valueToSave = (isDirty ? inputValue : currentKey).trim();
     if (!valueToSave) {
@@ -61,11 +63,20 @@ export default function ApiKeySettings() {
       return;
     }
 
-    setGeminiApiKey(valueToSave);
-    setCurrentKey(valueToSave);
-    setInputValue(valueToSave);
-    setIsDirty(false);
-    setMessage("保存しました");
+    try {
+      setIsSaving(true);
+      await verifyGeminiKey(valueToSave);
+      setGeminiApiKey(valueToSave);
+      setCurrentKey(valueToSave);
+      setInputValue(valueToSave);
+      setIsDirty(false);
+      setMessage("保存しました");
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : "Gemini API 検証に失敗しました";
+      setError(reason);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = () => {
@@ -106,9 +117,10 @@ export default function ApiKeySettings() {
         <button
           type="button"
           onClick={handleSave}
-          className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          disabled={isSaving}
+          className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
         >
-          保存
+          {isSaving ? "検証中..." : "保存"}
         </button>
         <button
           type="button"
