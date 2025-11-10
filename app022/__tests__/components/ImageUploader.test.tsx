@@ -89,4 +89,17 @@ describe("ImageUploader", () => {
     expect(await screen.findByTestId("uploader-error")).toHaveTextContent(/10MB/);
     expect(mockAddImages).not.toHaveBeenCalled();
   });
+
+  it("shows quota error when IndexedDB is full", async () => {
+    mockAddImages.mockRejectedValueOnce(new Error("QuotaExceededError"));
+    const user = userEvent.setup();
+    render(<ImageUploader />);
+
+    const fileInput = screen.getByLabelText(/add images/i);
+    const file = new File(["content"], "quota.png", { type: "image/png" });
+
+    await user.upload(fileInput, file);
+
+    expect(await screen.findByTestId("uploader-error")).toHaveTextContent(/ストレージ容量が不足/);
+  });
 });

@@ -45,7 +45,12 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
       await addImages(images);
       setStatus(`${images.length}枚の画像を追加しました`);
     } catch (err) {
-      setError("画像の追加中にエラーが発生しました");
+      const message = err instanceof Error ? err.message : "";
+      if (/quota|容量/i.test(message)) {
+        setError("ストレージ容量が不足しています。不要な画像を削除してください");
+      } else {
+        setError("画像の追加中にエラーが発生しました");
+      }
       console.error(err);
     }
   };
