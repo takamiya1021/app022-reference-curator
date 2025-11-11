@@ -129,14 +129,14 @@ export default function Slideshow({ images, isOpen, onClose, interval }: Slidesh
     >
       <div className="flex items-center justify-between px-6 py-4">
         <p className="text-sm font-semibold tracking-widest uppercase text-white/70">
-          Moodboard slideshow
+          スライドショー
         </p>
         <button
           type="button"
           onClick={closeSlideshow}
           className="rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:border-white/40 hover:text-white"
         >
-          Close slideshow
+          スライドショーを閉じる
         </button>
       </div>
 
@@ -146,7 +146,7 @@ export default function Slideshow({ images, isOpen, onClose, interval }: Slidesh
           onClick={goToPrevious}
           className="absolute left-8 top-1/2 -translate-y-1/2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:border-white/40"
         >
-          Previous image
+          前の画像
         </button>
 
         {currentImage ? (
@@ -167,7 +167,7 @@ export default function Slideshow({ images, isOpen, onClose, interval }: Slidesh
           onClick={goToNext}
           className="absolute right-8 top-1/2 -translate-y-1/2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition hover:border-white/40"
         >
-          Next image
+          次の画像
         </button>
       </div>
 
@@ -175,7 +175,7 @@ export default function Slideshow({ images, isOpen, onClose, interval }: Slidesh
         <div className="h-2 w-full rounded-full bg-white/10">
           <div
             role="progressbar"
-            aria-label="Slide progress"
+            aria-label="スライド進捗"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(progress * 100)}

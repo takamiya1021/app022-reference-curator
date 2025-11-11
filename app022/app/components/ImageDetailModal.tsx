@@ -11,6 +11,7 @@ type ImageDetailModalProps = {
   onClose: () => void;
   onUpdateMemo: (imageId: string, memo: string) => void;
   onAcceptTags: (imageId: string, tag: string) => void;
+  onRemoveTag: (imageId: string, tag: string) => void;
   aiSuggestions: string[];
 };
 
@@ -20,6 +21,7 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
   onClose,
   onUpdateMemo,
   onAcceptTags,
+  onRemoveTag,
   aiSuggestions,
 }) => {
   const [memoValue, setMemoValue] = useState(image.memo ?? "");
@@ -71,9 +73,17 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
     setAiLoading(true);
     try {
       const client = createGeminiClient();
+      console.log("Sending image to Gemini for analysis...");
       const result = await client.analyzeImage(image.thumbnail);
+      console.log("Gemini analysis result:", result);
+      console.log("Tags to display:", result.tags);
       setLocalSuggestions(result.tags ?? []);
+      if (!result.tags || result.tags.length === 0) {
+        console.warn("No tags returned from Gemini");
+        setAiError("タグが生成されませんでした。画像を変えて再試行してください。");
+      }
     } catch (error) {
+      console.error("AI tag generation error:", error);
       const message = error instanceof Error ? error.message : "AIタグ生成でエラーが発生しました";
       setAiError(message);
     } finally {
@@ -121,8 +131,16 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
               <h3 className="text-sm font-semibold text-zinc-700">タグ</h3>
               <ul className="flex flex-wrap gap-2">
                 {image.tags.map((tag) => (
-                  <li key={tag} className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
-                    {tag}
+                  <li key={tag} className="flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
+                    <span>{tag}</span>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveTag(image.id, tag)}
+                      className="ml-1 rounded-full text-zinc-400 hover:text-zinc-600 transition"
+                      aria-label={`タグ「${tag}」を削除`}
+                    >
+                      ×
+                    </button>
                   </li>
                 ))}
                 {image.tags.length === 0 && (

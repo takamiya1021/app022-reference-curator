@@ -1,7 +1,7 @@
 import type { ImageData } from "@/types";
 
 const GEMINI_MODEL = "gemini-2.0-flash-exp";
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const GEMINI_BASE_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const STORAGE_KEY = "gemini_api_key";
 
 type GeminiAnalysis = {
@@ -117,12 +117,12 @@ const parseInlineData = (dataUrl: string): { mimeType: string; data: string } =>
 
 const requestGemini = async <T>(body: Record<string, unknown>, apiKeyOverride?: string): Promise<T> => {
   const apiKey = apiKeyOverride ?? ensureApiKey();
+  const endpoint = `${GEMINI_BASE_ENDPOINT}?key=${apiKey}`;
 
-  const response = await fetch(GEMINI_ENDPOINT, {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify(body),
   });
@@ -151,7 +151,18 @@ export const createGeminiClient = () => {
           role: "user",
           parts: [
             {
-              text: "Analyze the image and respond with JSON containing keys `tags` (array of descriptive, lower-case tags) and `description` (concise sentence).",
+              text: `Analyze this image and respond ONLY with a JSON object (no markdown, no code blocks, just raw JSON).
+
+Required format:
+{
+  "tags": ["tag1", "tag2", "tag3"],
+  "description": "Brief description of the image"
+}
+
+Rules:
+- tags: 3-8 descriptive keywords in lowercase English
+- description: 1 sentence summary
+- Return ONLY the JSON, nothing else`,
             },
             {
               inlineData: {
@@ -165,19 +176,34 @@ export const createGeminiClient = () => {
       generationConfig: {
         temperature: 0.4,
         topP: 0.9,
+        responseMimeType: "application/json",
       },
     };
 
     const response = await requestGemini<GeminiResponse>(payload);
     const text = extractText(response);
 
+    console.log("Gemini raw response text:", text);
+
+    // マークダウンコードブロックを除去
+    let cleanText = text.trim();
+    if (cleanText.startsWith("```json")) {
+      cleanText = cleanText.replace(/^```json\s*/i, "").replace(/```\s*$/, "");
+    } else if (cleanText.startsWith("```")) {
+      cleanText = cleanText.replace(/^```\s*/, "").replace(/```\s*$/, "");
+    }
+
     try {
-      const parsed = JSON.parse(text) as GeminiAnalysis;
+      const parsed = JSON.parse(cleanText) as GeminiAnalysis;
+      console.log("Gemini parsed result:", parsed);
       return {
         tags: parsed.tags ?? [],
         description: parsed.description ?? "",
       };
     } catch (error) {
+      console.error("Failed to parse Gemini response:", error);
+      console.log("Clean text attempted:", cleanText);
+      console.log("Returning raw text as description");
       return {
         tags: [],
         description: text,

@@ -26,7 +26,7 @@ export default function TagManager({
 
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-4">
-      <h3 className="text-sm font-semibold text-zinc-800">Tags</h3>
+      <h3 className="text-sm font-semibold text-zinc-800">タグ</h3>
       <div className="mt-3 flex flex-wrap gap-2">
         {tags.map((tag) => (
           <span
@@ -39,18 +39,18 @@ export default function TagManager({
               onClick={() => onRemoveTag(tag)}
               className="rounded-full border border-transparent px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-rose-600 transition hover:border-rose-100 hover:bg-rose-50"
             >
-              Remove {tag}
+              {tag}を削除
             </button>
           </span>
         ))}
         {tags.length === 0 && (
-          <span className="text-xs text-zinc-400">No tags yet</span>
+          <span className="text-xs text-zinc-400">タグなし</span>
         )}
       </div>
       <div className="mt-4">
         <input
           list="tag-suggestions"
-          placeholder="Add tag"
+          placeholder="タグを追加"
           value={value}
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={handleKeyDown}

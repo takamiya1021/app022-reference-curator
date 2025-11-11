@@ -25,10 +25,10 @@ export default function TagFilter({
   return (
     <fieldset className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
       <legend className="text-sm font-semibold text-zinc-800">
-        Filter by tags
+        タグでフィルタ
       </legend>
       {tags.length === 0 && (
-        <p className="text-xs text-zinc-400">No tags collected yet.</p>
+        <p className="text-xs text-zinc-400">まだタグがありません。</p>
       )}
       <div className="flex flex-wrap gap-3">
         {tags.map((tag) => (

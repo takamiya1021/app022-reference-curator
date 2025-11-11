@@ -83,7 +83,7 @@ const ImageCardComponent = ({ image, onDelete, onSelect, "data-testid": dataTest
             onClick={handleDelete}
             className="rounded-full border border-transparent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-600 transition hover:border-rose-100 hover:bg-rose-50"
           >
-            Delete image
+            画像を削除
           </button>
         </div>
         {image.tags.length > 0 ? (
@@ -98,7 +98,7 @@ const ImageCardComponent = ({ image, onDelete, onSelect, "data-testid": dataTest
             ))}
           </ul>
         ) : (
-          <p className="text-xs text-zinc-400">No tags yet</p>
+          <p className="text-xs text-zinc-400">タグなし</p>
         )}
       </div>
     </article>

@@ -16,6 +16,7 @@ import type { ImageData } from "@/types";
 export default function Home() {
   const selectFilteredImages = useImageStore((state) => state.filteredImages);
   const images = selectFilteredImages();
+  const allImages = useImageStore((state) => state.images);
   const tags = useImageStore((state) => state.tags);
   const selectedTags = useImageStore((state) => state.selectedTags);
   const setSelectedTags = useImageStore((state) => state.setSelectedTags);
@@ -24,10 +25,16 @@ export default function Home() {
   const updateImage = useImageStore((state) => state.updateImage);
   const removeImage = useImageStore((state) => state.removeImage);
 
-  const [detailImage, setDetailImage] = useState<ImageData | null>(null);
+  const [detailImageId, setDetailImageId] = useState<string | null>(null);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const lastError = useImageStore((state) => state.lastError);
   const setLastError = useImageStore((state) => state.setLastError);
+
+  // ストアから常に最新の画像データを取得（タグ追加時に自動反映）
+  const detailImage = useMemo(
+    () => allImages.find((img) => img.id === detailImageId) ?? null,
+    [allImages, detailImageId],
+  );
 
   const filterOptions = useMemo(
     () => tags.map((tag) => ({ name: tag.name, count: tag.count })),
@@ -63,14 +70,7 @@ export default function Home() {
           </button>
         </div>
       )}
-      <Header
-        onOpenUploader={() => document.getElementById("image-uploader-input")?.click()}
-        onStartSlideshow={openSlideshow}
-        onOpenSettings={() => {
-          const element = document.getElementById("settings-section");
-          element?.scrollIntoView({ behavior: "smooth" });
-        }}
-      />
+      <Header onStartSlideshow={openSlideshow} />
 
       <section className="grid gap-6 px-6 py-10 lg:grid-cols-[360px_1fr]">
         <div className="space-y-6">
@@ -83,7 +83,7 @@ export default function Home() {
           <ImageGrid
             images={images}
             onDeleteImage={removeImage}
-            onSelectImage={(image) => setDetailImage(image)}
+            onSelectImage={(image) => setDetailImageId(image.id)}
           />
         </div>
       </section>
@@ -92,9 +92,10 @@ export default function Home() {
         <ImageDetailModal
           image={detailImage}
           isOpen
-          onClose={() => setDetailImage(null)}
+          onClose={() => setDetailImageId(null)}
           onUpdateMemo={handleMemoSave}
           onAcceptTags={handleAcceptTag}
+          onRemoveTag={removeTag}
           aiSuggestions={[]}
         />
       ) : null}

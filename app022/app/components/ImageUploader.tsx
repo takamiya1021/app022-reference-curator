@@ -91,9 +91,9 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
 
   return (
     <section className="rounded-3xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-6 py-10 text-center text-zinc-700">
-      <h2 className="text-xl font-semibold text-zinc-900">Collect visuals in seconds</h2>
+      <h2 className="text-xl font-semibold text-zinc-900">ビジュアルを収集</h2>
       <p className="mt-2 text-sm text-zinc-500">
-        Drag & drop inspiration or pick files to add them to your library.
+        JPG、PNG、GIF、WebP（各10MBまで）
       </p>
       <input
         ref={inputRef}
@@ -104,21 +104,15 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
         onChange={handleFileSelection}
         className="hidden"
       />
-      <div className="mt-6 flex flex-col items-center gap-3">
+      <div className="mt-6">
         <button
           type="button"
           onClick={handleButtonClick}
-          className="rounded-full bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-800"
+          className="rounded-full bg-zinc-900 px-8 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-zinc-800 disabled:opacity-50"
           disabled={isPending}
         >
-          {isPending ? "Importing..." : "Browse files"}
+          {isPending ? "📥 読み込み中..." : "📁 画像を選択"}
         </button>
-        <label
-          htmlFor="image-uploader-input"
-          className="cursor-pointer text-sm font-medium text-zinc-600 underline"
-        >
-          Add images
-        </label>
       </div>
       {status && (
         <p data-testid="uploader-status" className="mt-4 text-sm text-emerald-600">

@@ -109,25 +109,24 @@ export const useImageStore = create<ImageStore>()(
           set((state) => {
             const image = state.images.find((item) => item.id === id);
             const remainingImages = state.images.filter((item) => item.id !== id);
-            const nextTags = image
-              ? sortTagsByName(
-                  image.tags.reduce<Tag[]>((acc, tagName) => {
-                    const tag = acc.find((item) => item.name === tagName);
-                    if (!tag) return acc;
-                    const updated = acc
-                      .map((candidate) =>
-                        candidate.name === tagName
-                          ? { ...candidate, count: Math.max(0, candidate.count - 1) }
-                          : candidate,
-                      )
-                      .filter((candidate) => candidate.count > 0);
-                    return updated;
-                  }, [...state.tags]),
-                )
-              : sortTagsByName(state.tags);
+
+            if (!image) {
+              return { images: remainingImages, tags: state.tags };
+            }
+
+            // 削除する画像のタグのカウントを減らす
+            const nextTags = state.tags
+              .map((tag) => {
+                if (image.tags.includes(tag.name)) {
+                  return { ...tag, count: tag.count - 1 };
+                }
+                return tag;
+              })
+              .filter((tag) => tag.count > 0); // カウント0のタグを削除
+
             return {
               images: remainingImages,
-              tags: nextTags,
+              tags: sortTagsByName(nextTags),
             };
           });
         } catch (error) {
@@ -153,26 +152,51 @@ export const useImageStore = create<ImageStore>()(
       },
       addTag: async (imageId, tagName) => {
         set((state) => {
+          const targetImage = state.images.find((img) => img.id === imageId);
+          const shouldRemoveUntagged =
+            targetImage &&
+            tagName !== "untagged" &&
+            targetImage.tags.includes("untagged");
+
           const images = state.images.map((image) => {
             if (image.id !== imageId) return image;
             if (image.tags.includes(tagName)) return image;
+
+            // 新しいタグを追加し、必要に応じてuntaggedを削除
+            const newTags = shouldRemoveUntagged
+              ? [...image.tags.filter(t => t !== "untagged"), tagName]
+              : [...image.tags, tagName];
+
             return {
               ...image,
-              tags: [...image.tags, tagName],
+              tags: newTags,
               updatedAt: new Date(),
             };
           });
 
           const tags = (() => {
-            const existing = state.tags.find((tag) => tag.name === tagName);
-            if (existing) {
-              return sortTagsByName(
-                state.tags.map((tag) =>
-                  tag.name === tagName ? { ...tag, count: tag.count + 1 } : tag,
-                ),
-              );
+            let updatedTags = state.tags;
+
+            // untaggedを削除する場合、カウントを-1
+            if (shouldRemoveUntagged) {
+              updatedTags = updatedTags
+                .map((tag) =>
+                  tag.name === "untagged" ? { ...tag, count: tag.count - 1 } : tag,
+                )
+                .filter((tag) => tag.count > 0);
             }
-            return sortTagsByName([...state.tags, createTag(tagName)]);
+
+            // 新しいタグを追加またはカウント+1
+            const existing = updatedTags.find((tag) => tag.name === tagName);
+            if (existing) {
+              updatedTags = updatedTags.map((tag) =>
+                tag.name === tagName ? { ...tag, count: tag.count + 1 } : tag,
+              );
+            } else {
+              updatedTags = [...updatedTags, createTag(tagName)];
+            }
+
+            return sortTagsByName(updatedTags);
           })();
 
           return { images, tags };

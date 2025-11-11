@@ -8,7 +8,7 @@ export const generateThumbnail = async (file: File): Promise<string> => {
   const compressed = await imageCompression(file, {
     maxWidthOrHeight: Math.max(THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT),
     maxSizeMB: THUMBNAIL_MAX_SIZE_MB,
-    useWebWorker: true,
+    useWebWorker: false,
     fileType: file.type,
   });
 
