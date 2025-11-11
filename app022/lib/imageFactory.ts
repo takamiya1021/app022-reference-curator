@@ -10,7 +10,7 @@ const buildImageData = async (file: File): Promise<ImageData> => {
     thumbnail,
     fileName: file.name || "untitled",
     mimeType: file.type || "image/*",
-    tags: [],
+    tags: ["untagged"],
     createdAt: now,
     updatedAt: now,
   };

@@ -3,6 +3,5 @@ import "fake-indexeddb/auto";
 import structuredClone from "@ungap/structured-clone";
 
 if (typeof globalThis.structuredClone !== "function") {
-  // @ts-expect-error - we are polyfilling structuredClone for the test env.
-  globalThis.structuredClone = structuredClone;
+  (globalThis as unknown as { structuredClone: typeof structuredClone }).structuredClone = structuredClone;
 }

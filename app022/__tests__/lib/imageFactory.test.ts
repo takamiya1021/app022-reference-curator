@@ -15,6 +15,6 @@ describe("createImagesFromFiles", () => {
     expect(image.fileName).toBe("demo.png");
     expect(image.mimeType).toBe("image/png");
     expect(image.thumbnail).toBe("data:image/png;base64,MOCK");
-    expect(image.tags).toEqual([]);
+    expect(image.tags).toEqual(["untagged"]);
   });
 });

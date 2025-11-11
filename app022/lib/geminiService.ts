@@ -95,13 +95,23 @@ const extractText = (payload: GeminiResponse): string => {
 };
 
 const parseInlineData = (dataUrl: string): { mimeType: string; data: string } => {
-  const match = dataUrl.match(/^data:(?<mime>.+?);base64,(?<data>.+)$/);
-  if (!match || !match.groups) {
+  const prefix = "data:";
+  if (!dataUrl.startsWith(prefix)) {
+    throw new Error("Invalid data URL provided for Gemini image analysis.");
+  }
+  const firstComma = dataUrl.indexOf(",");
+  if (firstComma === -1) {
+    throw new Error("Invalid data URL provided for Gemini image analysis.");
+  }
+  const header = dataUrl.slice(prefix.length, firstComma);
+  const [mimePart] = header.split(";");
+  const base64Data = dataUrl.slice(firstComma + 1);
+  if (!mimePart || !base64Data) {
     throw new Error("Invalid data URL provided for Gemini image analysis.");
   }
   return {
-    mimeType: match.groups.mime,
-    data: match.groups.data,
+    mimeType: mimePart,
+    data: base64Data,
   };
 };
 
