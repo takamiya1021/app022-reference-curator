@@ -14,6 +14,8 @@
 
 A visual reference management app for designers and creators. Collect images, auto-tag them with AI, and present them in slideshows. Works entirely in the browser with privacy-first design.
 
+![Screenshot](./public/screenshot.png)
+
 ## ✨ 主な機能 / Key Features
 
 ### 📥 画像管理
