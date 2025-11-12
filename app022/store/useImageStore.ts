@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { saveImage, saveImages } from "@/lib/imageRepository";
+import { saveImage, saveImages, deleteImage } from "@/lib/imageRepository";
 import type { ImageData, Tag } from "@/types/index";
 
 type ImageStoreState = {
@@ -22,6 +22,7 @@ type ImageStoreActions = {
   setSearchQuery: (query: string) => void;
   filteredImages: () => ImageData[];
   setLastError: (message: string | null) => void;
+  rebuildTags: () => void;
 };
 
 export type ImageStore = ImageStoreState & ImageStoreActions;
@@ -106,6 +107,9 @@ export const useImageStore = create<ImageStore>()(
       },
       removeImage: async (id) => {
         try {
+          // IndexedDBから画像を削除
+          await deleteImage(id);
+
           set((state) => {
             const image = state.images.find((item) => item.id === id);
             const remainingImages = state.images.filter((item) => item.id !== id);
@@ -243,6 +247,33 @@ export const useImageStore = create<ImageStore>()(
             (image.aiDescription &&
               image.aiDescription.toLowerCase().includes(normalizedQuery));
           return matchesTags && matchesQuery;
+        });
+      },
+      rebuildTags: () => {
+        set((state) => {
+          // 全画像から正確なタグカウントを再計算
+          const tagMap = new Map<string, number>();
+
+          state.images.forEach((image) => {
+            image.tags.forEach((tagName) => {
+              tagMap.set(tagName, (tagMap.get(tagName) ?? 0) + 1);
+            });
+          });
+
+          // 既存タグの作成日時を保持しつつ、カウントを更新
+          const newTags: Tag[] = [];
+          tagMap.forEach((count, tagName) => {
+            const existingTag = state.tags.find((t) => t.name === tagName);
+            newTags.push({
+              id: tagName,
+              name: tagName,
+              color: "zinc",
+              count,
+              createdAt: existingTag?.createdAt ?? new Date(),
+            });
+          });
+
+          return { tags: sortTagsByName(newTags) };
         });
       },
     }),

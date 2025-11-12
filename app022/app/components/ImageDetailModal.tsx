@@ -130,19 +130,26 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-zinc-700">タグ</h3>
               <ul className="flex flex-wrap gap-2">
-                {image.tags.map((tag) => (
-                  <li key={tag} className="flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
-                    <span>{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => onRemoveTag(image.id, tag)}
-                      className="ml-1 rounded-full text-zinc-400 hover:text-zinc-600 transition"
-                      aria-label={`タグ「${tag}」を削除`}
-                    >
-                      ×
-                    </button>
-                  </li>
-                ))}
+                {image.tags.map((tag) => {
+                  // untaggedが唯一のタグの場合は削除不可
+                  const canDelete = !(image.tags.length === 1 && tag === "untagged");
+
+                  return (
+                    <li key={tag} className="flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
+                      <span>{tag}</span>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          onClick={() => onRemoveTag(image.id, tag)}
+                          className="ml-1 rounded-full text-zinc-400 hover:text-zinc-600 transition"
+                          aria-label={`タグ「${tag}」を削除`}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
                 {image.tags.length === 0 && (
                   <li className="text-xs text-zinc-400">タグはまだありません</li>
                 )}
@@ -164,7 +171,7 @@ const ImageDetailModal: FC<ImageDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handleSaveMemo}
-                className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
+                className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-95 active:bg-zinc-950"
               >
                 保存
               </button>

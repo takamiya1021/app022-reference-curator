@@ -108,7 +108,7 @@ export default function ImageUploader({ onFilesAdded }: ImageUploaderProps) {
         <button
           type="button"
           onClick={handleButtonClick}
-          className="rounded-full bg-zinc-900 px-8 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-zinc-800 disabled:opacity-50"
+          className="rounded-full bg-zinc-900 px-8 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-zinc-800 active:scale-95 active:bg-zinc-950 disabled:opacity-50"
           disabled={isPending}
         >
           {isPending ? "📥 読み込み中..." : "📁 画像を選択"}

@@ -18,7 +18,7 @@ export default function Header({
       <button
         type="button"
         onClick={onStartSlideshow}
-        className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-zinc-800"
+        className="rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-zinc-800 active:scale-95 active:bg-zinc-950"
       >
         🎬 スライドショー開始
       </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ImageUploader from "@/app/components/ImageUploader";
 import ImageGrid from "@/app/components/ImageGrid";
 import ImageDetailModal from "@/app/components/ImageDetailModal";
@@ -24,11 +24,17 @@ export default function Home() {
   const removeTag = useImageStore((state) => state.removeTag);
   const updateImage = useImageStore((state) => state.updateImage);
   const removeImage = useImageStore((state) => state.removeImage);
+  const rebuildTags = useImageStore((state) => state.rebuildTags);
 
   const [detailImageId, setDetailImageId] = useState<string | null>(null);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   const lastError = useImageStore((state) => state.lastError);
   const setLastError = useImageStore((state) => state.setLastError);
+
+  // アプリ起動時にタグカウントを再計算（不整合を修正）
+  useEffect(() => {
+    rebuildTags();
+  }, []);
 
   // ストアから常に最新の画像データを取得（タグ追加時に自動反映）
   const detailImage = useMemo(

@@ -124,7 +124,7 @@ export default function ApiKeySettings() {
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
+            className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-95 active:bg-zinc-950 disabled:opacity-50"
           >
             {isSaving ? "検証中..." : "保存"}
           </button>

@@ -24,7 +24,7 @@ const AITagSuggestion: FC<AITagSuggestionProps> = ({ tags, onAcceptTag }) => {
             <button
               type="button"
               onClick={() => onAcceptTag(tag)}
-              className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-zinc-800"
+              className="rounded-full bg-zinc-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-zinc-800 active:scale-95 active:bg-zinc-950"
             >
               "{tag}" を追加
             </button>
